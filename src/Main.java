@@ -4,14 +4,14 @@ import java.math.RoundingMode;
 import java.util.*;
 
 public class Main {
-    static int n = 7; // Number of approximations to calculate
-    static int m = 53; // Number of approximations to calculate
+    static int n = 3;
+    static int m = 20;
     static BigDecimal temp = null;
     static int smaller = -1;
     static boolean stop = false;
     static int i = 0;
     static int k = 0;
-    static BigDecimal alpha = new BigDecimal(Math.log(3)/Math.log(2) - 1);
+    static BigDecimal alpha = new BigDecimal((1 + Math. sqrt(5)) / 2);
     static BigDecimal ab = null;
     static int t;
     static HashMap<Integer, Integer> approx = calculateSth(alpha);
@@ -21,7 +21,6 @@ public class Main {
     static HashMap<Integer, Boolean> s = new HashMap<>();
     static HashMap<Integer, ArrayList<BigDecimal>> ver = new HashMap<>();
     public static void main(String[] args) {
-//        System.out.println(alpha);
         for (k = n; k < m + 1; k++) {
             i = k;
             temp = alpha.multiply(BigDecimal.valueOf(i));
@@ -42,13 +41,9 @@ public class Main {
                 BigDecimal ptemp = pq.get(i).round(MathContext.DECIMAL64);
                 if (ptemp.compareTo(tmp) == 0) continue;
             }
-//            System.out.println("α=" + temp);
             pq.put(i, temp);
             p.put(i, t);
             temp = new BigDecimal((double)t/i);
-//            System.out.println("p=" + t);
-//            System.out.println("q=" + i);
-//            System.out.println("p/q=" + temp);
             int sign = temp.subtract(alpha).compareTo(BigDecimal.ZERO);
             if (sign >= 0) {
                 s.put(i, true);
@@ -57,9 +52,8 @@ public class Main {
             }
             ab = temp.subtract(alpha).abs();
             abs.put(i, ab);
-//            System.out.println("|p/q-α|=" + ab);
             approx.forEach((key, value) -> {
-                if (key <= i) {
+                if (value <= i) {
                     if (!stop) {
                         int cmp = temp.subtract(alpha, MathContext.DECIMAL32).abs().subtract(BigDecimal.valueOf((double)key/value).subtract(alpha, MathContext.DECIMAL32).abs()).compareTo(BigDecimal.ZERO);
                         if (cmp == 0) {
@@ -88,16 +82,12 @@ public class Main {
             smaller = -1;
             stop = false;
             ArrayList<BigDecimal> array = calculate(temp);
-//            System.out.print("[");
             int j = 0;
             for (BigDecimal b : array) {
-//                System.out.print(b);
                 if (j != array.size() - 1) {
-//                    System.out.print(", ");
                 }
                 j++;
             }
-//            System.out.println("]");
             ver.put(i, array);
         }
         print(abs);
@@ -139,7 +129,6 @@ public class Main {
             System.out.print(s.get(new Integer(key)) ? "+" : "-");
             System.out.println(abs.get(new Integer(key)).setScale(18, RoundingMode.HALF_EVEN));
         });
-//        System.out.println(sortedMap);
     }
 
     public static ArrayList<BigDecimal> calculate(BigDecimal alpha) {
@@ -181,7 +170,7 @@ public class Main {
         BigDecimal den1 = BigDecimal.ONE;
         BigDecimal den2 = BigDecimal.ZERO;
 
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < 20; i++) {
 
             BigDecimal a = fractions.get(i);
             BigDecimal num = a.multiply(num1).add(num2);
@@ -194,10 +183,7 @@ public class Main {
             den1 = den;
             if (den.compareTo(BigDecimal.ZERO) == 0) continue;
             res.put(den.intValue(), num.intValue());
-//            System.out.printf("Approximation %d: %s/%s \n", i + 1, den, num);
-//            System.out.println("Difference=" + den.divide(num, MathContext.DECIMAL128).subtract(alpha).abs());
         }
-//        System.out.println("----------");
         return res;
     }
     public static ArrayList<BigDecimal> continuedFraction(BigDecimal b) {
@@ -206,9 +192,8 @@ public class Main {
         ArrayList<BigDecimal> fractions = new ArrayList<>();
         fractions.add(a0);
         a0 = pi.subtract(a0);
-        for (int i = 1; i < n; i++) {
-            if (a0.equals(BigDecimal.ZERO)) {
-                n = i;
+        for (int i = 1; i < 20; i++) {
+            if (a0.compareTo(BigDecimal.ZERO) == 0) {
                 break;
             }
             BigDecimal ai = BigDecimal.ONE.divide(a0, MathContext.DECIMAL128);
